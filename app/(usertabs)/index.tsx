@@ -1,5 +1,10 @@
 import UserHomeScreen from "@/src/screens/user/UserHomeScreen";
+import { ScrollView } from "react-native";
 
 export default function HomeScreen() {
-  return <UserHomeScreen />;
+  return (
+    <ScrollView>
+      <UserHomeScreen />
+    </ScrollView>
+  );
 }
