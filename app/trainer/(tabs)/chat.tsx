@@ -1,5 +1,5 @@
 import TrainerChatListScreen from "@/src/screens/trainer/TrainerChatListScreen";
 
-export default function TrainerChatScreen() {
+export default function TrainerChatPageScreen() {
   return <TrainerChatListScreen />;
 }

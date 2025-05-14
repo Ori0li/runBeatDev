@@ -1,5 +1,5 @@
 import TrainerHomeScreen from "@/src/screens/trainer/TrainerHomeScreen";
 
-export default function TrainerIndexScreen() {
+export default function TrainerIndexPageScreen() {
   return <TrainerHomeScreen />;
 }
