@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 9999,
     backgroundColor: "#FFFFFF",
+    overflow: "hidden",
   },
   profileName: {
     fontSize: 16,

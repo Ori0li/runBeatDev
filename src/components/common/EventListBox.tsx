@@ -5,12 +5,12 @@ import ToggleMenu from "./ToggleMenu";
 interface EventListBoxProps {
   date: string;
   type: "today" | "upcoming";
+  name: string;
 }
 
-const EventListBox = ({ date, type }: EventListBoxProps) => {
+const EventListBox = ({ date, type, name }: EventListBoxProps) => {
   const dateText =
     type === "today" ? `${date} 오늘의 일정` : `${date} 다가오는 일정`;
-  const trainerName = "김형준 트레이너님";
   const time = "09:00 - 10:00";
 
   return (
@@ -22,7 +22,7 @@ const EventListBox = ({ date, type }: EventListBoxProps) => {
       <View style={styles.contentWrapper}>
         <Image style={styles.profileImage} />
         <View style={styles.infoWrapper}>
-          <Text style={styles.trainerName}>{trainerName}</Text>
+          <Text style={styles.trainerName}>{name} 트레이너</Text>
           <Text style={styles.time}>{time}</Text>
         </View>
       </View>
