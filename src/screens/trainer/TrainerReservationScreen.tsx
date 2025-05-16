@@ -35,17 +35,19 @@ const TrainerReservationScreen = () => {
   };
   return (
     <UseContainer>
-      <DaySelector
-        daysInMonth={daysInMonth}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-      />
       <MonthSelector
         selectedMonth={currentMonth.month()}
         onMonthChange={handleMonthChange}
       />
 
+      <DaySelector
+        daysInMonth={daysInMonth}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+      />
+
       <FlatList
+        style={{ flex: 2 }}
         data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -66,8 +68,8 @@ export default TrainerReservationScreen;
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingHorizontal: 20,
     paddingBottom: 20,
+    marginVertical: 20,
   },
   card: {
     flexDirection: "row",

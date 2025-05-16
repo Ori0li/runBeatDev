@@ -27,7 +27,6 @@ export default TrainerProfile;
 
 const styles = StyleSheet.create({
   profileSection: {
-    marginHorizontal: 20,
     backgroundColor: "#3C23D7",
     padding: 20,
     borderRadius: 5,

@@ -58,7 +58,7 @@ export default UserProfile;
 
 const styles = StyleSheet.create({
   profileSection: {
-    margin: 20,
+    marginVertical: 20,
     backgroundColor: "#3C23D7",
     padding: 20,
     borderRadius: 10,

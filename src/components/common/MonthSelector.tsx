@@ -30,11 +30,11 @@ export default MonthSelector;
 
 const styles = StyleSheet.create({
   monthSelector: {
-    width: "25%",
+    width: "30%",
     height: 40,
     borderColor: "#dddddd",
+    marginVertical: 20,
     borderWidth: 1,
-    margin: 20,
     marginBottom: 10,
     borderRadius: 5,
     backgroundColor: "#ffffff",

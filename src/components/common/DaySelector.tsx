@@ -52,12 +52,12 @@ export default DaySelector;
 const styles = StyleSheet.create({
   dayScroll: {
     paddingVertical: 20,
-    marginHorizontal: 20,
     backgroundColor: "#3C23D7",
     borderRadius: 5,
   },
   dayButtonWrapper: {
     flexDirection: "row",
+    paddingHorizontal: 20,
   },
   dayButton: {
     width: 44,
