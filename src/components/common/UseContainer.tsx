@@ -13,6 +13,7 @@ const UseContainer = ({ children }: { children: React.ReactNode }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    flex: 1,
   },
 });
 

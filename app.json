@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "앱에서 사진을 사용하려면 권한이 필요합니다."
+      }
     },
     "android": {
       "adaptiveIcon": {

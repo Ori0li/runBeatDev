@@ -1,10 +1,12 @@
 import DaySelector from "@/src/components/common/DaySelector";
 import MonthSelector from "@/src/components/common/MonthSelector";
+import ScheduleTab from "@/src/components/common/ScheduleTab";
 import UseContainer from "@/src/components/common/UseContainer";
+import AddScheduleModal from "@/src/components/user/AddScheduleModal";
 import dayjs from "dayjs";
 import { useState } from "react";
 import {
-  FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -94,6 +96,55 @@ const sampleData = [
     content:
       "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
   },
+  {
+    id: "13",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
+  {
+    id: "14",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
+  {
+    id: "15",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
+  {
+    id: "16",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
+  {
+    id: "17",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
+  {
+    id: "18",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
+  {
+    id: "19",
+    tag: "운동",
+    date: "2025-05-17",
+    content:
+      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
+  },
 ];
 
 const UserScheduleScreen = () => {
@@ -101,6 +152,7 @@ const UserScheduleScreen = () => {
   const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState(today);
   const [selectedTab, setSelectedTab] = useState("식단");
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const daysInMonth = Array.from(
     { length: currentMonth.daysInMonth() },
@@ -118,68 +170,86 @@ const UserScheduleScreen = () => {
     setCurrentMonth(updated);
     setSelectedDate(updated.date(1));
   };
+
   return (
     <UseContainer>
-      <SafeAreaView>
-        <DaySelector
-          daysInMonth={daysInMonth}
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-        />
-        <MonthSelector
-          selectedMonth={currentMonth.month()}
-          onMonthChange={handleMonthChange}
-        />
-        <View style={styles.tabContainer}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <View>
+            <DaySelector
+              daysInMonth={daysInMonth}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          </View>
+          <View>
+            <MonthSelector
+              selectedMonth={currentMonth.month()}
+              onMonthChange={handleMonthChange}
+            />
+          </View>
+          <View>
+            <ScheduleTab
+              selectedTab={selectedTab}
+              setSelectedTab={setSelectedTab}
+            />
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {filteredData.map((item) => (
+              <View key={item.id} style={styles.card}>
+                <Text style={styles.cardText}>{item.content}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+        <View style={styles.fixedButtonWrapper}>
           <TouchableOpacity
-            style={[styles.tab, selectedTab === "식단" && styles.activeTab]}
-            onPress={() => setSelectedTab("식단")}
+            onPress={() => setIsModalVisible(true)}
+            style={styles.addButton}
+            activeOpacity={1}
           >
-            <Text>식단</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === "운동" && styles.activeTab]}
-            onPress={() => setSelectedTab("운동")}
-          >
-            <Text>운동</Text>
+            <Text style={styles.addButtonText}>+</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          data={filteredData}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.cardText}>{item.content}</Text>
-            </View>
-          )}
+        <AddScheduleModal
+          isVisible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
         />
       </SafeAreaView>
     </UseContainer>
   );
 };
-export default UserScheduleScreen;
 
 const styles = StyleSheet.create({
-  tabContainer: {
-    flexDirection: "row",
-    marginVertical: 10,
-  },
-  tab: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-  },
-  activeTab: {
-    backgroundColor: "#007bff",
-  },
   card: {
     padding: 16,
     marginVertical: 10,
     backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#C0C0C0",
     borderRadius: 8,
   },
   cardText: {
     fontSize: 16,
   },
+  fixedButtonWrapper: {
+    width: "100%",
+  },
+  addButton: {
+    width: "100%",
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#C0C0C0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addButtonText: {
+    color: "#C0C0C0",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
 });
+
+export default UserScheduleScreen;
