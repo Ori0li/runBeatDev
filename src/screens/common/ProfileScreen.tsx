@@ -1,4 +1,4 @@
-import { getUserProfile } from "@/libs/api/auth";
+import { getUserProfile } from "@/libs/api/user";
 import UseContainer from "@/src/components/common/UseContainer";
 import EditProfile from "@/src/components/user/EditProfile";
 import { useAuthStore } from "@/src/stores/useAuthStore";

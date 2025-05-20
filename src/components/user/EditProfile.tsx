@@ -1,4 +1,4 @@
-import { updateUserProfile } from "@/libs/api/auth";
+import { updateUserProfile } from "@/libs/api/user";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";

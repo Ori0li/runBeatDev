@@ -1,4 +1,4 @@
-import { signin_user } from "@/libs/api/auth";
+import { authAccount } from "@/libs/api/auth";
 import ButtonForm from "@/src/components/common/ButtonForm";
 import InputForm from "@/src/components/common/InputForm";
 import UseContainer from "@/src/components/common/UseContainer";
@@ -16,7 +16,7 @@ const LoginScreen = () => {
 
   const loginHandler = async () => {
     try {
-      await signin_user(IdValue, passwordValue, role as "trainer" | "user");
+      await authAccount(IdValue, passwordValue, role as "trainer" | "user");
       Alert.alert("로그인 성공");
 
       if (isChecked) {
