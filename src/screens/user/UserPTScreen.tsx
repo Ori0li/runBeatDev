@@ -1,4 +1,5 @@
 import ButtonForm from "@/src/components/common/ButtonForm";
+import UseContainer from "@/src/components/common/UseContainer";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
@@ -59,75 +60,77 @@ const PTRegister = () => {
   const PM = PTdata.filter((item) => parseInt(item.time.slice(0, 2)) >= 12);
 
   return (
-    <View>
-      <Calendar
-        style={styles.calendar}
-        onDayPress={(day) => setSelectedDate(day.dateString)}
-        markedDates={{
-          [selectedDate]: { selected: true, selectedColor: "#3C23D7" },
-        }}
-        theme={{
-          todayTextColor: "#3C23D7",
-          selectedDayBackgroundColor: "#3C23D7",
-          arrowColor: "#3C23D7",
-        }}
-      />
-      <View style={{ paddingHorizontal: 10 }}>
-        <Text style={styles.ampmText}>오전</Text>
-        <View style={styles.timeWrapper}>
-          {AM.map((v, i) => {
-            return (
-              <TouchableOpacity
-                key={i}
-                style={[
-                  styles.timeButton,
-                  selectedTime === v.time && styles.timeButtonActive,
-                  v.available === false && styles.timeButtonEmpty,
-                ]}
-                onPress={() => setSelectedTime(v.time)}
-              >
-                <Text
+    <UseContainer>
+      <View>
+        <Calendar
+          style={styles.calendar}
+          onDayPress={(day) => setSelectedDate(day.dateString)}
+          markedDates={{
+            [selectedDate]: { selected: true, selectedColor: "#3C23D7" },
+          }}
+          theme={{
+            todayTextColor: "#3C23D7",
+            selectedDayBackgroundColor: "#3C23D7",
+            arrowColor: "#3C23D7",
+          }}
+        />
+        <View style={{ paddingHorizontal: 10 }}>
+          <Text style={styles.ampmText}>오전</Text>
+          <View style={styles.timeWrapper}>
+            {AM.map((v, i) => {
+              return (
+                <TouchableOpacity
+                  key={i}
                   style={[
-                    styles.timeText,
-                    selectedTime === v.time && styles.timeTextActive,
-                    v.available === false && styles.timeTextEmpty,
+                    styles.timeButton,
+                    selectedTime === v.time && styles.timeButtonActive,
+                    v.available === false && styles.timeButtonEmpty,
                   ]}
+                  onPress={() => setSelectedTime(v.time)}
                 >
-                  {v.time}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-        <Text style={styles.ampmText}>오후</Text>
-        <View style={styles.timeWrapper}>
-          {PM.map((v, i) => {
-            return (
-              <TouchableOpacity
-                key={i}
-                style={[
-                  styles.timeButton,
-                  selectedTime === v.time && styles.timeButtonActive,
-                  v.available === false && styles.timeButtonEmpty,
-                ]}
-                onPress={() => setSelectedTime(v.time)}
-              >
-                <Text
+                  <Text
+                    style={[
+                      styles.timeText,
+                      selectedTime === v.time && styles.timeTextActive,
+                      v.available === false && styles.timeTextEmpty,
+                    ]}
+                  >
+                    {v.time}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Text style={styles.ampmText}>오후</Text>
+          <View style={styles.timeWrapper}>
+            {PM.map((v, i) => {
+              return (
+                <TouchableOpacity
+                  key={i}
                   style={[
-                    styles.timeText,
-                    selectedTime === v.time && styles.timeTextActive,
-                    v.available === false && styles.timeTextEmpty,
+                    styles.timeButton,
+                    selectedTime === v.time && styles.timeButtonActive,
+                    v.available === false && styles.timeButtonEmpty,
                   ]}
+                  onPress={() => setSelectedTime(v.time)}
                 >
-                  {v.time}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+                  <Text
+                    style={[
+                      styles.timeText,
+                      selectedTime === v.time && styles.timeTextActive,
+                      v.available === false && styles.timeTextEmpty,
+                    ]}
+                  >
+                    {v.time}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
+        <ButtonForm name={"예약하기"} onPress={registerButton}></ButtonForm>
       </View>
-      <ButtonForm name={"예약하기"} onPress={registerButton}></ButtonForm>
-    </View>
+    </UseContainer>
   );
 };
 
@@ -136,7 +139,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    marginTop: -25,
   },
   timeWrapper: {
     display: "flex",

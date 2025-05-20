@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     position: "fixed",
-    marginTop: 20,
+    // marginTop: 20,
   },
   img: {
     width: "100%",

@@ -12,6 +12,22 @@ const sampleData = [
   { id: "4", name: "손예진 회원님", time: "09:00 - 10:00", date: "2025-05-16" },
   { id: "5", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
   { id: "6", name: "전지현 회원님", time: "11:00 - 12:00", date: "2025-05-17" },
+  { id: "7", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
+  { id: "8", name: "전지현 회원님", time: "11:00 - 12:00", date: "2025-05-17" },
+  { id: "9", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
+  {
+    id: "10",
+    name: "전지현 회원님",
+    time: "11:00 - 12:00",
+    date: "2025-05-17",
+  },
+  { id: "11", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
+  {
+    id: "12",
+    name: "전지현 회원님",
+    time: "11:00 - 12:00",
+    date: "2025-05-17",
+  },
 ];
 
 const TrainerReservationScreen = () => {
@@ -35,20 +51,22 @@ const TrainerReservationScreen = () => {
   };
   return (
     <UseContainer>
-      <MonthSelector
-        selectedMonth={currentMonth.month()}
-        onMonthChange={handleMonthChange}
-      />
+      <View>
+        <MonthSelector
+          selectedMonth={currentMonth.month()}
+          onMonthChange={handleMonthChange}
+        />
 
-      <DaySelector
-        daysInMonth={daysInMonth}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-      />
-
+        <DaySelector
+          daysInMonth={daysInMonth}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+        />
+      </View>
       <FlatList
         style={{ flex: 2 }}
         data={filteredData}
+        showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.card}>

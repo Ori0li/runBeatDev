@@ -12,11 +12,18 @@ const UserHomeScreen = () => {
     <>
       <UseContainer>
         <UserProfile name="김형준" height={180} weight={75} ptCount={100} />
-        <TouchableOpacity onPress={() => {}}>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Today 식단 기록하기</Text>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={() => {}} style={{ flex: 1 }}>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>PT 예약</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {}} style={{ flex: 1 }}>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Today 기록</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </UseContainer>
       <View style={styles.eventListWrapper}>
         <EventListBox date={today} type="today" name="김형준" />
@@ -28,21 +35,29 @@ const UserHomeScreen = () => {
 export default UserHomeScreen;
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 20,
+  },
   buttonWrapper: {
-    padding: 15,
     backgroundColor: "#000541",
-    borderRadius: 10,
+    borderRadius: 5,
+    padding: 15,
+    flex: 1,
+    width: "100%",
   },
   buttonText: {
     color: "#ffffff",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
   },
   eventListWrapper: {
     width: "100%",
     height: "100%",
-    marginTop: 20,
+    // marginTop: 10,
     backgroundColor: "#D9E6FD",
     padding: 20,
     borderRadius: 10,

@@ -16,7 +16,7 @@ const ButtonForm = ({ name, onPress }: ButtonProps) => {
 const style = StyleSheet.create({
   BlueButton: {
     width: "100%",
-    padding: 20,
+    padding: 15,
     backgroundColor: "#3C23D7",
     borderRadius: 5,
     boxShadow: "rgba(149, 157, 165, 0.3) 0px 6px 10px",

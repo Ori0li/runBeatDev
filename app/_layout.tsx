@@ -17,9 +17,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <Stack>
-        {/* <Stack.Screen name="login/(tabs)" options={{ headerShown: false }} /> */}
+        <Stack.Screen name="login/(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="user/(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="trainer/(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="profile/(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="editPwd/(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

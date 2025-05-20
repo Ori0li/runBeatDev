@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const sampleData = [
   {
@@ -173,21 +172,22 @@ const UserScheduleScreen = () => {
 
   return (
     <UseContainer>
-      <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1, marginTop: 10 }}>
         <View style={{ flex: 1 }}>
-          <View>
-            <DaySelector
-              daysInMonth={daysInMonth}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-          </View>
           <View>
             <MonthSelector
               selectedMonth={currentMonth.month()}
               onMonthChange={handleMonthChange}
             />
           </View>
+          <View style={{ marginBottom: 20, marginTop: 10 }}>
+            <DaySelector
+              daysInMonth={daysInMonth}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          </View>
+
           <View>
             <ScheduleTab
               selectedTab={selectedTab}
@@ -216,7 +216,7 @@ const UserScheduleScreen = () => {
           isVisible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
         />
-      </SafeAreaView>
+      </View>
     </UseContainer>
   );
 };

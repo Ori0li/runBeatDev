@@ -14,7 +14,9 @@ const EventListBox = ({ date, type, name }: EventListBoxProps) => {
   const time = "09:00 - 10:00";
 
   return (
-    <View style={styles.container}>
+    <View
+      style={{ ...styles.container, opacity: type === "upcoming" ? 0.7 : 1 }}
+    >
       <View style={styles.headerWrapper}>
         <Text style={styles.dateText}>{dateText}</Text>
         <ToggleMenu />
@@ -36,13 +38,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
     padding: 20,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    borderRadius: 10,
+    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
     elevation: 3,
-    marginBottom: 15,
+    marginBottom: 20,
   },
   headerWrapper: {
     flexDirection: "row", // 좌우로 배치

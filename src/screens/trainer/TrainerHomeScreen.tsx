@@ -5,7 +5,7 @@ import TrainerEventList from "@/src/components/trainer/TrainerEventList";
 import TrainerProfile from "@/src/components/trainer/TrainerProfile";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { StyleSheet, Text } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 const sampleData = [
   { id: "1", name: "김태희 회원님", time: "09:00 - 10:00", date: "2025-05-15" },
@@ -42,27 +42,38 @@ const TrainerHomeScreen = () => {
 
   return (
     <UseContainer>
-      <TrainerProfile name="홍길동" />
-      <MonthSelector
-        selectedMonth={currentMonth.month()}
-        onMonthChange={handleMonthChange}
-      />
-      <DaySelector
-        daysInMonth={daysInMonth}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-      />
-      <Text style={styles.dateTitle}>
-        {selectedDate.format("M월 D일")} 오늘의 일정
-      </Text>
-      {filteredData.map((item) => (
-        <TrainerEventList
-          key={item.id}
-          name={item.name}
-          time={item.time}
-          onCancel={() => handleCancelSchedule(item.id)}
-        />
-      ))}
+      <View style={{ flex: 1, marginTop: 10 }}>
+        <View>
+          <TrainerProfile name="홍길동" />
+        </View>
+        <View>
+          <MonthSelector
+            selectedMonth={currentMonth.month()}
+            onMonthChange={handleMonthChange}
+          />
+          <DaySelector
+            daysInMonth={daysInMonth}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        </View>
+        <View>
+          <Text style={styles.dateTitle}>
+            {selectedDate.format("M월 D일")} 오늘의 일정
+          </Text>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {filteredData.map((item) => (
+            <TrainerEventList
+              key={item.id}
+              name={item.name}
+              time={item.time}
+              onCancel={() => handleCancelSchedule(item.id)}
+            />
+          ))}
+        </ScrollView>
+      </View>
     </UseContainer>
   );
 };

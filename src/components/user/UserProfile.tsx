@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,6 +15,11 @@ type UserProfileProps = {
 };
 
 const UserProfile = ({ name, height, weight, ptCount }: UserProfileProps) => {
+  const router = useRouter();
+
+  const handleEditProfile = () => {
+    router.push("/profile/(tabs)/profile");
+  };
   return (
     <SafeAreaView style={styles.profileSection}>
       <View style={styles.profileWrapper}>
@@ -39,14 +45,9 @@ const UserProfile = ({ name, height, weight, ptCount }: UserProfileProps) => {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={handleEditProfile}>
           <View style={styles.buttonWrapper}>
             <Text style={styles.buttonText}>프로필 수정</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}}>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>회원 탈퇴</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -115,14 +116,14 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   buttonWrapper: {
-    width: 150,
-    padding: 10,
+    width: 300,
+    padding: 15,
     backgroundColor: "#000541",
     borderRadius: 5,
   },
   buttonText: {
     color: "#ffffff",
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
   },
