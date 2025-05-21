@@ -6,12 +6,21 @@ interface EventListBoxProps {
   date: string;
   type: "today" | "upcoming";
   name: string;
+  time: string;
+  reservationId: number;
+  onDelete: () => void;
 }
 
-const EventListBox = ({ date, type, name }: EventListBoxProps) => {
+const EventListBox = ({
+  date,
+  type,
+  name,
+  time,
+  reservationId,
+  onDelete,
+}: EventListBoxProps) => {
   const dateText =
     type === "today" ? `${date} 오늘의 일정` : `${date} 다가오는 일정`;
-  const time = "09:00 - 10:00";
 
   return (
     <View
@@ -19,7 +28,7 @@ const EventListBox = ({ date, type, name }: EventListBoxProps) => {
     >
       <View style={styles.headerWrapper}>
         <Text style={styles.dateText}>{dateText}</Text>
-        <ToggleMenu />
+        <ToggleMenu reservationId={reservationId} onDelete={onDelete} />
       </View>
       <View style={styles.contentWrapper}>
         <Image style={styles.profileImage} />

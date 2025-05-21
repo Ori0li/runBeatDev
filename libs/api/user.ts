@@ -6,7 +6,7 @@ export const getUserProfile = async () => {
   const accessToken = useAuthStore.getState().accessToken;
   if (!accessToken) throw new Error("로그인이 필요합니다.");
 
-  const res = await fetch(`${BASE_URL}/user/profile`, {
+  const res = await fetch(`${BASE_URL}/profile/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -26,15 +26,14 @@ export const updateUserProfile = async (profileData: {
   name: string;
   trainer: string;
   height: number;
-  birth: string;
   weight: number;
   gender: string;
 }) => {
   const accessToken = useAuthStore.getState().accessToken;
   if (!accessToken) throw new Error("로그인이 필요합니다.");
 
-  const res = await fetch(`${BASE_URL}/user/profile`, {
-    method: "PUT",
+  const res = await fetch(`${BASE_URL}/profile/info`, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,

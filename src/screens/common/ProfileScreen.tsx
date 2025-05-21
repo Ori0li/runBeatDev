@@ -13,7 +13,6 @@ const ProfileScreen = () => {
     name: "",
     trainer: "",
     height: 0,
-    birth: "",
     weight: 0,
     gender: "",
   });
@@ -26,7 +25,6 @@ const ProfileScreen = () => {
           name: userData.name,
           trainer: userData.trainer,
           height: userData.height,
-          birth: userData.birth,
           weight: userData.weight,
           gender: userData.gender,
         });
@@ -46,14 +44,7 @@ const ProfileScreen = () => {
   return (
     <UseContainer>
       <View style={styles.editContainer}>
-        <EditProfile
-          name={profile.name}
-          trainer={profile.trainer}
-          height={profile.height}
-          birth={profile.birth}
-          weight={profile.weight}
-          gender={profile.gender}
-        />
+        <EditProfile {...profile} />
       </View>
     </UseContainer>
   );

@@ -1,24 +1,83 @@
+import { getSchedule } from "@/libs/api/schedule";
+import { getUserProfile } from "@/libs/api/user";
 import EventListBox from "@/src/components/common/EventListBox";
 import UseContainer from "@/src/components/common/UseContainer";
 import UserProfile from "@/src/components/user/UserProfile";
 import dayjs from "dayjs";
-import React from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+interface ScheduleData {
+  reservationId: number;
+  trainerName: string;
+  date: string;
+  time: string;
+}
+
 const UserHomeScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const handlePTReservation = () => {
+    router.push("/user/(tabs)/add");
+  };
+  const handleUserSchedule = () => {
+    router.push("/user/(tabs)/schedule");
+  };
+
+  const [profile, setProfile] = useState({
+    name: "",
+    height: 0,
+    weight: 0,
+    ptCount: 0,
+  });
+  const [todaySchedule, setTodaySchedule] = useState<ScheduleData[]>([]);
+  const [upcomingSchedule, setUpcomingSchedule] = useState<ScheduleData[]>([]);
+
+  const fetchSchedule = async () => {
+    try {
+      const scheduleData = await getSchedule();
+      console.log("받아온 스케줄 데이터:", scheduleData);
+      setTodaySchedule(scheduleData.today);
+      setUpcomingSchedule(scheduleData.upcoming);
+      console.log("오늘의 스케줄:", todaySchedule);
+      console.log("다가오는 스케줄:", upcomingSchedule);
+    } catch (error) {
+      console.error("스케줄 정보를 가져오는데 실패했습니다.", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await getUserProfile();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("프로필 정보를 가져오는데 실패했습니다.", error);
+      }
+    };
+    fetchProfile();
+    fetchSchedule();
+  }, [params.refresh]);
+
   const today = dayjs().format("YYYY-MM-DD");
-  const upcoming = dayjs().add(1, "day").format("YYYY-MM-DD");
+
   return (
     <>
       <UseContainer>
-        <UserProfile name="김형준" height={180} weight={75} ptCount={100} />
+        <UserProfile
+          name={profile.name}
+          height={profile.height}
+          weight={profile.weight}
+          ptCount={profile.ptCount}
+        />
         <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={() => {}} style={{ flex: 1 }}>
+          <TouchableOpacity onPress={handlePTReservation} style={{ flex: 1 }}>
             <View style={styles.buttonWrapper}>
               <Text style={styles.buttonText}>PT 예약</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}} style={{ flex: 1 }}>
+          <TouchableOpacity onPress={handleUserSchedule} style={{ flex: 1 }}>
             <View style={styles.buttonWrapper}>
               <Text style={styles.buttonText}>Today 기록</Text>
             </View>
@@ -26,8 +85,37 @@ const UserHomeScreen = () => {
         </View>
       </UseContainer>
       <View style={styles.eventListWrapper}>
-        <EventListBox date={today} type="today" name="김형준" />
-        <EventListBox date={upcoming} type="upcoming" name="김형준" />
+        {todaySchedule?.length > 0 ? (
+          todaySchedule.map((v) => (
+            <EventListBox
+              key={v.reservationId}
+              reservationId={v.reservationId}
+              date={today}
+              type="today"
+              name={v.trainerName}
+              time={v.time}
+              onDelete={fetchSchedule}
+            />
+          ))
+        ) : (
+          <Text>오늘 예약 없음</Text>
+        )}
+
+        {upcomingSchedule?.length > 0 ? (
+          upcomingSchedule.map((v) => (
+            <EventListBox
+              key={v.reservationId}
+              reservationId={v.reservationId}
+              date={v.date}
+              type="upcoming"
+              name={v.trainerName}
+              time={v.time}
+              onDelete={fetchSchedule}
+            />
+          ))
+        ) : (
+          <Text>다가오는 예약 없음</Text>
+        )}
       </View>
     </>
   );

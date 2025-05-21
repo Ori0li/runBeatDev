@@ -1,5 +1,7 @@
+import { updateSchedule } from "@/libs/api/schedule";
 import ButtonForm from "@/src/components/common/ButtonForm";
 import UseContainer from "@/src/components/common/UseContainer";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
@@ -38,10 +40,37 @@ LocaleConfig.locales["ko"] = {
 LocaleConfig.defaultLocale = "ko";
 
 const PTRegister = () => {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  const registerButton = () => {
-    return console.log("예약하기 성공");
+
+  const registerButton = async () => {
+    if (!selectedDate || !selectedTime) {
+      alert("날짜와 시간을 선택해주세요.");
+      return;
+    }
+
+    try {
+      const scheduleData = {
+        date: selectedDate,
+        time: selectedTime,
+      };
+
+      const response = await updateSchedule(scheduleData);
+      console.log("예약 성공:", response);
+      alert("예약이 완료되었습니다!");
+
+      router.replace({
+        pathname: "/user/(tabs)",
+        params: { refresh: Date.now() },
+      });
+
+      setSelectedDate("");
+      setSelectedTime("");
+    } catch (error) {
+      console.error("예약 실패:", error);
+      alert("예약에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   const PTdata = [

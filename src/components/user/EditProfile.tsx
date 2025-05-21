@@ -2,7 +2,7 @@ import { updateUserProfile } from "@/libs/api/user";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -23,7 +23,6 @@ type EditProfileProps = {
   name: string;
   trainer: string;
   height: number;
-  birth: string;
   weight: number;
   gender: string;
 };
@@ -61,19 +60,26 @@ const EditProfile = ({
   name,
   trainer,
   height,
-  birth,
   weight,
   gender,
 }: EditProfileProps) => {
   const router = useRouter();
-  const [profileName, setProfileName] = useState(name);
-  const [profileTrainer, setProfileTrainer] = useState(trainer);
-  const [profileHeight, setProfileHeight] = useState(height.toString());
-  const [profileBirth, setProfileBirth] = useState(birth);
-  const [profileWeight, setProfileWeight] = useState(weight.toString());
-  const [profileGender, setProfileGender] = useState(gender);
+  const [profileName, setProfileName] = useState("");
+  const [profileTrainer, setProfileTrainer] = useState("");
+  const [profileHeight, setProfileHeight] = useState("");
+  const [profileWeight, setProfileWeight] = useState("");
+  const [profileGender, setProfileGender] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [alarmEnabled, setAlarmEnabled] = useState(true);
+
+  useEffect(() => {
+    setProfileName(name);
+    setProfileTrainer(trainer);
+    setProfileHeight(height.toString());
+    setProfileWeight(weight.toString());
+    setProfileGender(gender);
+    console.log(gender);
+  }, [name, trainer, height, weight, gender]);
 
   const pickImage = async () => {
     try {
@@ -115,17 +121,17 @@ const EditProfile = ({
         name: profileName,
         trainer: profileTrainer,
         height: Number(profileHeight),
-        birth: profileBirth,
         weight: Number(profileWeight),
         gender: profileGender,
       });
       Alert.alert("성공", "프로필이 수정 되었습니다.", [
         {
           text: "확인",
-          // onPress: () => router.back()
+          onPress: () => router.replace("/user/(tabs)"),
         },
       ]);
     } catch (error) {
+      console.log(error);
       Alert.alert(
         "오류",
         error instanceof Error ? error.message : "프로필 수정에 실패했습니다."
@@ -231,16 +237,9 @@ const EditProfile = ({
               onChangeText={setProfileWeight}
             />
             <ProfileField
-              label="생년월일"
-              value={profileBirth}
-              onChangeText={setProfileBirth}
-              editable={false}
-            />
-            <ProfileField
               label="성별"
               value={profileGender}
               onChangeText={setProfileGender}
-              editable={false}
             />
           </View>
         </View>
