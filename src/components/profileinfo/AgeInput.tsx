@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-interface AgeInputProps {
-  value: number;
-  onChangeText: (text: string) => void;
-}
+import WheelPickerExpo from "react-native-wheel-picker-expo";
 
 // 나이 입력 컴포넌트
 const AgeInput = () => {
