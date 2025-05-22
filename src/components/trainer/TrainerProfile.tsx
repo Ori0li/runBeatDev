@@ -1,21 +1,29 @@
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 type TrainerProfileProps = {
   name: string;
+  photoUrl: string;
+  scheduleCount: number;
 };
 
-const TrainerProfile = ({ name }: TrainerProfileProps) => {
+const TrainerProfile = ({
+  name,
+  photoUrl,
+  scheduleCount,
+}: TrainerProfileProps) => {
   return (
     <SafeAreaView style={styles.profileSection}>
       <View style={styles.profileWrapper}>
-        <View style={styles.profileImage}></View>
+        <View style={styles.profileImageWrapper}>
+          <Image style={styles.profileImage} src={photoUrl}></Image>
+        </View>
         <View style={styles.profileInfoWrapper}>
           <View>
             <Text style={styles.profileText}>트레이너</Text>
             <Text style={styles.profileName}>{name}님 반가워요!</Text>
           </View>
           <View>
-            <Text style={styles.profileText}>오늘의 일정: 5</Text>
+            <Text style={styles.profileText}>오늘의 일정: {scheduleCount}</Text>
           </View>
         </View>
       </View>
@@ -41,12 +49,18 @@ const styles = StyleSheet.create({
     // justifyContent: "space-around",
   },
   profileInfoWrapper: {},
-  profileImage: {
+  profileImageWrapper: {
     width: 64,
     height: 64,
     borderRadius: 9999,
-    backgroundColor: "#FFFFFF",
     marginRight: 20,
+    overflow: "hidden",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 9999,
+    objectFit: "cover",
   },
   profileName: {
     fontSize: 16,

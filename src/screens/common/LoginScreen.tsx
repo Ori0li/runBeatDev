@@ -1,4 +1,5 @@
 import { authAccount } from "@/libs/api/auth";
+import { getUserProfile } from "@/libs/api/user";
 import ButtonForm from "@/src/components/common/ButtonForm";
 import InputForm from "@/src/components/common/InputForm";
 import UseContainer from "@/src/components/common/UseContainer";
@@ -22,8 +23,15 @@ const LoginScreen = () => {
       if (isChecked) {
         console.log("자동로그인 체크됨 (refreshToken은 SecureStore에 저장됨)");
       }
+
       if (role === "user") {
-        router.push("/user/(tabs)");
+        const userProfile = await getUserProfile();
+
+        if (userProfile.height === null || userProfile.weight === null) {
+          router.push("/profile/(tabs)/profileinfo");
+        } else {
+          router.push("/user/(tabs)");
+        }
       } else if (role === "trainer") {
         router.push("/trainer/(tabs)");
       }

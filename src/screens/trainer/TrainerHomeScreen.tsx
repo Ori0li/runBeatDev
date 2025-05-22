@@ -1,7 +1,9 @@
+import { getScheduleToday, getTrainerProfile } from "@/libs/api/trainer";
 import UseContainer from "@/src/components/common/UseContainer";
 import TrainerEventList from "@/src/components/trainer/TrainerEventList";
 import TrainerProfile from "@/src/components/trainer/TrainerProfile";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 const sampleData = [
@@ -29,7 +31,50 @@ const sampleData = [
   },
 ];
 
+type TrainerProfile = {
+  name: string;
+  photoUrl: string;
+};
+type ScheduleToday = {
+  name: string;
+  required: boolean;
+  description: string;
+};
+
 const TrainerHomeScreen = () => {
+  const [trainerName, setTrainerName] = useState<TrainerProfile>({
+    name: "",
+    photoUrl: "",
+  });
+  const [scheduleToday, setScheduleToday] = useState<ScheduleToday>({
+    name: "",
+    required: true,
+    description: "",
+  });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await getTrainerProfile();
+        setTrainerName(profileData);
+        // console.log(profileData);
+      } catch (error) {
+        console.error("프로필 정보를 가져오는데 실패했습니다.", error);
+      }
+    };
+
+    const fetchScheduleToday = async () => {
+      try {
+        const scheduleToday = await getScheduleToday();
+        setScheduleToday(scheduleToday);
+        console.log(scheduleToday);
+      } catch (error) {
+        console.error("트레이너 오늘 예약 목록 조회에 실패하였습니다.", error);
+      }
+    };
+    fetchProfile();
+    fetchScheduleToday();
+  }, []);
+
   const today = dayjs();
 
   const filteredData = sampleData.filter(
@@ -44,7 +89,11 @@ const TrainerHomeScreen = () => {
     <UseContainer>
       <View style={{ flex: 1, marginTop: 10 }}>
         <View>
-          <TrainerProfile name="홍길동" />
+          <TrainerProfile
+            name={`${trainerName.name}`}
+            photoUrl={trainerName.photoUrl}
+            scheduleCount={scheduleToday.length || 0}
+          />
         </View>
         <View>
           <Text style={styles.dateTitle}>
