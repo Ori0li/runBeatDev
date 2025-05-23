@@ -1,48 +1,157 @@
-import { updateSchedule } from "@/libs/api/schedule";
+import { getScheduleByDate, updateSchedule } from "@/libs/api/schedule";
+
 import ButtonForm from "@/src/components/common/ButtonForm";
 import UseContainer from "@/src/components/common/UseContainer";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 LocaleConfig.locales["ko"] = {
   monthNames: [
-    "01월 ",
-    "02월 ",
-    "03월 ",
-    "04월 ",
-    "05월 ",
-    "06월 ",
-    "07월 ",
-    "08월 ",
-    "09월 ",
-    "10월 ",
-    "11월 ",
-    "12월 ",
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+    "11월",
+    "12월",
   ],
   monthNamesShort: [
-    "01월 ",
-    "02월 ",
-    "03월 ",
-    "04월 ",
-    "05월 ",
-    "06월 ",
-    "07월 ",
-    "08월 ",
-    "09월 ",
-    "10월 ",
-    "11월 ",
-    "12월 ",
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+    "11월",
+    "12월",
   ],
-  dayNames: ["일", "월", "화", "수", "목", "금", "토"],
+  dayNames: [
+    "일요일",
+    "월요일",
+    "화요일",
+    "수요일",
+    "목요일",
+    "금요일",
+    "토요일",
+  ],
   dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
+  today: "오늘",
 };
 LocaleConfig.defaultLocale = "ko";
 
+type availableTime = {
+  time: string;
+  available: boolean;
+};
+
 const PTRegister = () => {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState("");
+  const today = dayjs().format("YYYY-MM-DD");
+  const [selectedDate, setSelectedDate] = useState(today);
   const [selectedTime, setSelectedTime] = useState("");
+  const [timeSlots, setTimeSlots] = useState<availableTime[]>([]);
+
+  const getKSTNow = () => {
+    const nowUTC = new Date();
+    const kstOffset = 9 * 60; // KST = UTC+9
+    const localOffset = nowUTC.getTimezoneOffset();
+    const kst = new Date(nowUTC.getTime() + (kstOffset + localOffset) * 60000);
+    return dayjs(kst);
+  };
+
+  const getUpdatedPTData = (
+    selectedDate: string,
+    apiTimeSlots: availableTime[]
+  ) => {
+    const now = getKSTNow();
+    const isToday = dayjs(selectedDate).isSame(now, "day");
+
+    return apiTimeSlots.map((slot) => {
+      const slotTime = dayjs(
+        `${selectedDate} ${slot.time}`,
+        "YYYY-MM-DD HH:mm"
+      );
+      const isPast = isToday && slotTime.isBefore(now);
+      return {
+        time: slot.time,
+        available: slot.available && !isPast,
+      };
+    });
+  };
+
+  useEffect(() => {
+    const fetchScheduleTimes = async () => {
+      try {
+        console.log("요청 시작", selectedDate);
+        const times = await getScheduleByDate(selectedDate); // API에서 시간대 받아오기
+        console.log("요청 완료", times);
+        setTimeSlots(getUpdatedPTData(selectedDate, times));
+        setSelectedTime(""); // 날짜 바뀌면 시간 초기화
+      } catch (error) {
+        console.error("예약 시간 조회 실패:", error);
+      }
+    };
+
+    if (selectedDate) fetchScheduleTimes();
+  }, [selectedDate]);
+
+  const amSlots = timeSlots.filter((slot) => {
+    const hour = parseInt(slot.time.split(":")[0], 10);
+    return hour < 12;
+  });
+
+  const pmSlots = timeSlots.filter((slot) => {
+    const hour = parseInt(slot.time.split(":")[0], 10);
+    return hour >= 12;
+  });
+
+  const renderSlot = (slot: availableTime, index: number) => {
+    const isSelected = selectedTime === slot.time;
+    return (
+      <TouchableOpacity
+        key={index}
+        disabled={!slot.available}
+        onPress={() => setSelectedTime(slot.time)}
+        style={[
+          styles.timeButton,
+          isSelected && styles.timeButtonActive,
+          !slot.available && styles.timeButtonEmpty,
+        ]}
+      >
+        <Text
+          style={[
+            styles.timeText,
+            isSelected && styles.timeTextActive,
+            !slot.available && styles.timeTextEmpty,
+          ]}
+        >
+          {slot.time}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   const registerButton = async () => {
     if (!selectedDate || !selectedTime) {
@@ -73,26 +182,12 @@ const PTRegister = () => {
     }
   };
 
-  const PTdata = [
-    { time: "09:00", available: false },
-    { time: "10:00", available: true },
-    { time: "11:00", available: true },
-    { time: "12:00", available: true },
-    { time: "13:00", available: true },
-    { time: "14:00", available: true },
-    { time: "15:00", available: true },
-    { time: "16:00", available: true },
-    { time: "17:00", available: true },
-    { time: "18:00", available: false },
-  ];
-  const AM = PTdata.filter((item) => parseInt(item.time.slice(0, 2)) < 12);
-  const PM = PTdata.filter((item) => parseInt(item.time.slice(0, 2)) >= 12);
-
   return (
     <UseContainer>
-      <View>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <Calendar
           style={styles.calendar}
+          minDate={today}
           onDayPress={(day) => setSelectedDate(day.dateString)}
           markedDates={{
             [selectedDate]: { selected: true, selectedColor: "#3C23D7" },
@@ -105,60 +200,12 @@ const PTRegister = () => {
         />
         <View style={{ paddingHorizontal: 10 }}>
           <Text style={styles.ampmText}>오전</Text>
-          <View style={styles.timeWrapper}>
-            {AM.map((v, i) => {
-              return (
-                <TouchableOpacity
-                  key={i}
-                  style={[
-                    styles.timeButton,
-                    selectedTime === v.time && styles.timeButtonActive,
-                    v.available === false && styles.timeButtonEmpty,
-                  ]}
-                  onPress={() => setSelectedTime(v.time)}
-                >
-                  <Text
-                    style={[
-                      styles.timeText,
-                      selectedTime === v.time && styles.timeTextActive,
-                      v.available === false && styles.timeTextEmpty,
-                    ]}
-                  >
-                    {v.time}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <View style={styles.timeWrapper}>{amSlots.map(renderSlot)}</View>
           <Text style={styles.ampmText}>오후</Text>
-          <View style={styles.timeWrapper}>
-            {PM.map((v, i) => {
-              return (
-                <TouchableOpacity
-                  key={i}
-                  style={[
-                    styles.timeButton,
-                    selectedTime === v.time && styles.timeButtonActive,
-                    v.available === false && styles.timeButtonEmpty,
-                  ]}
-                  onPress={() => setSelectedTime(v.time)}
-                >
-                  <Text
-                    style={[
-                      styles.timeText,
-                      selectedTime === v.time && styles.timeTextActive,
-                      v.available === false && styles.timeTextEmpty,
-                    ]}
-                  >
-                    {v.time}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <View style={styles.timeWrapper}>{pmSlots.map(renderSlot)}</View>
         </View>
-        <ButtonForm name={"예약하기"} onPress={registerButton}></ButtonForm>
-      </View>
+        <ButtonForm name={"예약하기"} onPress={registerButton} />
+      </ScrollView>
     </UseContainer>
   );
 };
@@ -170,7 +217,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   timeWrapper: {
-    display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
@@ -190,9 +236,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 999,
     borderColor: "#E6E6E6",
-    borderStyle: "solid",
     borderWidth: 1,
-    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+    shadowColor: "rgba(149, 157, 165, 0.2)",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 24,
   },
   timeButtonActive: {
     backgroundColor: "#3C23D7",
@@ -212,4 +260,5 @@ const styles = StyleSheet.create({
     color: "#B3B3B3",
   },
 });
+
 export default PTRegister;

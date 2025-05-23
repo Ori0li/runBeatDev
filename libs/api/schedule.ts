@@ -64,3 +64,25 @@ export const deleteSchedule = async (reservationId: number) => {
 
   return res.json();
 };
+
+export const getScheduleByDate = async (selectedDate: string) => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) throw new Error("로그인이 필요합니다.");
+
+  const res = await fetch(
+    `${BASE_URL}/schedules/available?date=${selectedDate}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || "스케쥴 예약에 실패했습니다.");
+  }
+
+  return json.data;
+};
