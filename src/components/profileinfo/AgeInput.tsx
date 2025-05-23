@@ -2,10 +2,14 @@ import { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import WheelPickerExpo from "react-native-wheel-picker-expo";
 
+interface AgeInputProps {
+  value: number;
+  onChangeText: (value: number) => void;
+}
+
 // 나이 입력 컴포넌트
-const AgeInput = () => {
+const AgeInput = ({ value, onChangeText }: AgeInputProps) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedAge, setSelectedAge] = useState("0");
 
   const ageOptions = Array.from({ length: 81 }, (_, i) => i.toString()); // 0~80세
 
@@ -17,7 +21,7 @@ const AgeInput = () => {
         style={styles.inputWithUnit}
         onPress={() => setIsVisible(true)}
       >
-        <Text style={styles.input}>{selectedAge}</Text>
+        <Text style={styles.input}>{value}</Text>
         <Text style={styles.unitLabel}>세</Text>
       </TouchableOpacity>
 
@@ -30,10 +34,10 @@ const AgeInput = () => {
               <WheelPickerExpo
                 height={150}
                 width={100}
-                initialSelectedIndex={parseInt(selectedAge)}
+                initialSelectedIndex={value}
                 items={ageOptions.map((age) => ({ label: age, value: age }))}
                 onChange={({ item }: { item: { value: string } }) =>
-                  setSelectedAge(item.value)
+                  onChangeText(parseInt(item.value))
                 }
                 renderItem={(item: { label: string }) => (
                   <Text style={styles.pickerItemText}>{item.label}</Text>

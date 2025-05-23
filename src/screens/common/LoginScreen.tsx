@@ -1,5 +1,5 @@
 import { authAccount } from "@/libs/api/auth";
-import { getUserProfile } from "@/libs/api/user";
+import { getUserMainProfile } from "@/libs/api/user";
 import ButtonForm from "@/src/components/common/ButtonForm";
 import InputForm from "@/src/components/common/InputForm";
 import UseContainer from "@/src/components/common/UseContainer";
@@ -25,7 +25,7 @@ const LoginScreen = () => {
       }
 
       if (role === "user") {
-        const userProfile = await getUserProfile();
+        const userProfile = await getUserMainProfile();
 
         if (userProfile.height === null || userProfile.weight === null) {
           router.push("/profile/(tabs)/profileinfo");

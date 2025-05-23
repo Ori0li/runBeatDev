@@ -24,3 +24,52 @@ export const authAccount = async (
   useAuthStore.getState().setAuth(accessToken, serverRole);
   await saveRefreshToken(refreshToken);
 };
+
+export const updateUserPassword = async (
+  oldPassword: string,
+  newPassword: string,
+  confirmPassword: string
+) => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) throw new Error("로그인이 필요합니다.");
+
+  const res = await fetch(`${BASE_URL}/auth/password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      oldPassword,
+      newPassword,
+      confirmPassword,
+    }),
+  });
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || "비밀번호 변경에 실패했습니다.");
+  }
+
+  return json.data;
+};
+
+export const deleteUser = async () => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) throw new Error("로그인이 필요합니다.");
+
+  const res = await fetch(`${BASE_URL}/auth/withdraw`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || "회원탈퇴에 실패했습니다.");
+  }
+
+  return json.data;
+};

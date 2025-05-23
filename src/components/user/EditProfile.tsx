@@ -1,3 +1,4 @@
+import { deleteUser } from "@/libs/api/auth";
 import { updateUserProfile } from "@/libs/api/user";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -179,8 +180,14 @@ const EditProfile = ({
         {
           text: "확인",
           style: "destructive",
-          onPress: () => {
-            console.log("회원탈퇴");
+          onPress: async () => {
+            try {
+              await deleteUser();
+              router.replace("/login");
+            } catch (error) {
+              console.error("회원탈퇴 중 오류 발생:", error);
+              Alert.alert("오류", "회원탈퇴 중 오류가 발생했습니다.");
+            }
           },
         },
       ]
@@ -224,6 +231,7 @@ const EditProfile = ({
               label="담당강사"
               value={profileTrainer}
               onChangeText={setProfileTrainer}
+              editable={false}
             />
             <ProfileField
               label="키"

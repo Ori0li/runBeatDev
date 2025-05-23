@@ -1,4 +1,4 @@
-import { getUserProfile } from "@/libs/api/user";
+import { getUserDetailProfile } from "@/libs/api/user";
 import UseContainer from "@/src/components/common/UseContainer";
 import EditProfile from "@/src/components/user/EditProfile";
 import { useAuthStore } from "@/src/stores/useAuthStore";
@@ -20,10 +20,11 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const userData = await getUserProfile();
+        const userData = await getUserDetailProfile();
+        console.log(userData);
         setProfile({
           name: userData.name,
-          trainer: userData.trainer,
+          trainer: userData.trainerName,
           height: userData.height,
           weight: userData.weight,
           gender: userData.gender,

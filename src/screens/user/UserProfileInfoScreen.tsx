@@ -35,7 +35,14 @@ const UserProfileInfoScreen = () => {
         return;
       }
 
-      await addUserInfo(formData);
+      await addUserInfo({
+        name: formData.nickname,
+        age: formData.age,
+        gender: formData.gender,
+        height: formData.height,
+        weight: formData.weight,
+        memo: formData.memo,
+      });
       Alert.alert("성공", "프로필 정보가 등록되었습니다.");
       router.replace({
         pathname: "/user/(tabs)",
@@ -71,8 +78,8 @@ const UserProfileInfoScreen = () => {
         />
         <AgeInput
           value={formData.age}
-          onChangeText={(text) =>
-            setFormData((prev) => ({ ...prev, age: Number(text) }))
+          onChangeText={(value) =>
+            setFormData((prev) => ({ ...prev, age: value }))
           }
         />
         <GenderInput

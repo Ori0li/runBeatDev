@@ -1,3 +1,4 @@
+import { updateUserPassword } from "@/libs/api/auth";
 import ButtonForm from "@/src/components/common/ButtonForm";
 import InputForm from "@/src/components/common/InputForm";
 import UseContainer from "@/src/components/common/UseContainer";
@@ -7,12 +8,12 @@ import { Alert, StyleSheet, View } from "react-native";
 
 const EditPwd = () => {
   const router = useRouter();
-  const [currentPassword, setCurrentPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleChangePassword = async () => {
-    if (!currentPassword) {
+    if (!oldPassword) {
       Alert.alert("알림", "현재 비밀번호를 입력해주세요.");
       return;
     }
@@ -26,30 +27,11 @@ const EditPwd = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://192.168.6.49:3050/auth/change-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            currentPassword,
-            newPassword,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "비밀번호 변경에 실패했습니다.");
-      }
-
+      await updateUserPassword(oldPassword, newPassword, confirmPassword);
       Alert.alert("성공", "비밀번호가 변경되었습니다.", [
         {
           text: "확인",
-          onPress: () => router.back(),
+          onPress: () => router.replace("/login"),
         },
       ]);
     } catch (error) {
@@ -66,8 +48,8 @@ const EditPwd = () => {
         <InputForm
           title="현재 비밀번호"
           placeholder="현재 비밀번호를 입력해주세요"
-          value={currentPassword}
-          setValue={setCurrentPassword}
+          value={oldPassword}
+          setValue={setOldPassword}
         />
         <InputForm
           title="새 비밀번호"

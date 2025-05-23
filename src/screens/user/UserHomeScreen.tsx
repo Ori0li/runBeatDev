@@ -1,5 +1,5 @@
 import { getSchedule } from "@/libs/api/schedule";
-import { getUserProfile } from "@/libs/api/user";
+import { getUserMainProfile } from "@/libs/api/user";
 import EventListBox from "@/src/components/common/EventListBox";
 import UseContainer from "@/src/components/common/UseContainer";
 import UserProfile from "@/src/components/user/UserProfile";
@@ -50,7 +50,7 @@ const UserHomeScreen = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileData = await getUserProfile();
+        const profileData = await getUserMainProfile();
         setProfile(profileData);
       } catch (error) {
         console.error("프로필 정보를 가져오는데 실패했습니다.", error);
