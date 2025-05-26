@@ -1,5 +1,5 @@
 import { deleteUser } from "@/libs/api/auth";
-import { updateUserProfile } from "@/libs/api/user";
+import { updateUserProfile, uploadProfileImage } from "@/libs/api/user";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -97,10 +97,31 @@ const EditProfile = ({
         quality: 1,
       });
       if (!result.canceled) {
-        setProfileImage(result.assets[0].uri);
+        try {
+          const response = await fetch(result.assets[0].uri);
+          const blob = await response.blob();
+          console.log("Image blob size:", blob.size);
+          console.log("Image blob type:", blob.type);
+
+          const uploadedImageUrl = await uploadProfileImage(blob);
+          console.log("Uploaded image URL:", uploadedImageUrl);
+          setProfileImage(uploadedImageUrl);
+        } catch (uploadError) {
+          console.error("Image upload error:", uploadError);
+          Alert.alert(
+            "이미지 업로드 실패",
+            uploadError instanceof Error
+              ? uploadError.message
+              : "이미지 업로드 중 오류가 발생했습니다."
+          );
+        }
       }
     } catch (error) {
-      Alert.alert("이미지를 불러오는 중 오류가 발생했습니다.");
+      console.error("Image picker error:", error);
+      Alert.alert(
+        "이미지 선택 오류",
+        "이미지를 선택하는 중 오류가 발생했습니다."
+      );
     }
   };
 

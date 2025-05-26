@@ -1,54 +1,60 @@
+import { deleteSchedule } from "@/libs/api/schedule";
+import { getTrainerReservations } from "@/libs/api/trainer";
 import DaySelector from "@/src/components/common/DaySelector";
 import MonthSelector from "@/src/components/common/MonthSelector";
 import UseContainer from "@/src/components/common/UseContainer";
+import TrainerEventList from "@/src/components/trainer/TrainerEventList";
 import dayjs from "dayjs";
-import React, { useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
-
-const sampleData = [
-  { id: "1", name: "김태희 회원님", time: "09:00 - 10:00", date: "2025-05-15" },
-  { id: "2", name: "이민호 회원님", time: "10:00 - 11:00", date: "2025-05-15" },
-  { id: "3", name: "정우성 회원님", time: "11:00 - 12:00", date: "2025-05-15" },
-  { id: "4", name: "손예진 회원님", time: "09:00 - 10:00", date: "2025-05-16" },
-  { id: "5", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
-  { id: "6", name: "전지현 회원님", time: "11:00 - 12:00", date: "2025-05-17" },
-  { id: "7", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
-  { id: "8", name: "전지현 회원님", time: "11:00 - 12:00", date: "2025-05-17" },
-  { id: "9", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
-  {
-    id: "10",
-    name: "전지현 회원님",
-    time: "11:00 - 12:00",
-    date: "2025-05-17",
-  },
-  { id: "11", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
-  {
-    id: "12",
-    name: "전지현 회원님",
-    time: "11:00 - 12:00",
-    date: "2025-05-17",
-  },
-];
+import React, { useEffect, useState } from "react";
+import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 
 const TrainerReservationScreen = () => {
   const today = dayjs();
   const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState(today);
+  const [reservations, setReservations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const daysInMonth = Array.from(
     { length: currentMonth.daysInMonth() },
     (_, i) => currentMonth.date(i + 1)
   );
 
-  const filteredData = sampleData.filter(
-    (item) => item.date === selectedDate.format("YYYY-MM-DD")
-  );
+  const fetchReservations = async (date: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getTrainerReservations(date);
+      setReservations(data);
+    } catch (err: any) {
+      setError(err.message || "예약을 불러오지 못했습니다.");
+      setReservations([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReservations(selectedDate.format("YYYY-MM-DD"));
+  }, [selectedDate]);
 
   const handleMonthChange = (monthIndex: number) => {
     const updated = currentMonth.month(monthIndex);
     setCurrentMonth(updated);
     setSelectedDate(updated.date(1));
   };
+
+  const handleDelete = async (reservationId: number) => {
+    try {
+      await deleteSchedule(reservationId);
+      Alert.alert("성공", "예약이 취소되었습니다.");
+      fetchReservations(selectedDate.format("YYYY-MM-DD"));
+    } catch (err: any) {
+      Alert.alert("오류", err.message || "스케쥴 취소에 실패했습니다.");
+    }
+  };
+
   return (
     <UseContainer>
       <View>
@@ -56,29 +62,34 @@ const TrainerReservationScreen = () => {
           selectedMonth={currentMonth.month()}
           onMonthChange={handleMonthChange}
         />
-
         <DaySelector
           daysInMonth={daysInMonth}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
         />
       </View>
-      <FlatList
-        style={{ flex: 2 }}
-        data={filteredData}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.time}>{item.time}</Text>
-            </View>
-            <Text style={styles.date}>{item.date}</Text>
-          </View>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
+      {loading ? (
+        <Text>로딩 중...</Text>
+      ) : error ? (
+        <Text style={{ color: "red" }}>{error}</Text>
+      ) : (
+        <FlatList
+          style={{ flex: 2 }}
+          data={reservations}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => String(item.reservationId)}
+          renderItem={({ item }) => (
+            <TrainerEventList
+              name={item.userName}
+              time={item.time}
+              reservationId={item.reservationId}
+              onDelete={handleDelete}
+            />
+          )}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={<Text>예약 없음</Text>}
+        />
+      )}
     </UseContainer>
   );
 };

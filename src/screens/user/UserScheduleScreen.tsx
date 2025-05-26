@@ -1,11 +1,14 @@
+import { createRecord, getRecords } from "@/libs/api/records";
 import DaySelector from "@/src/components/common/DaySelector";
 import MonthSelector from "@/src/components/common/MonthSelector";
 import ScheduleTab from "@/src/components/common/ScheduleTab";
 import UseContainer from "@/src/components/common/UseContainer";
 import AddScheduleModal from "@/src/components/user/AddScheduleModal";
 import dayjs from "dayjs";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,162 +16,80 @@ import {
   View,
 } from "react-native";
 
-const sampleData = [
-  {
-    id: "1",
-    tag: "식단",
-    date: "2025-05-15",
-    content: "형준이가 내 밥을 뺏어 먹었다...",
-  },
-  {
-    id: "2",
-    tag: "식단",
-    date: "2025-05-15",
-    content: "오늘  슬퍼서 파스타에 치킨에 피자에 짜장면까지 시켜먹었다",
-  },
-  {
-    id: "3",
-    tag: "식단",
-    date: "2025-05-15",
-    content:
-      "오늘 닭가슴살 10개를 한번에 먹었더니 단백질 과다섭취로 배가 아프다",
-  },
-  {
-    id: "4",
-    tag: "식단",
-    date: "2025-05-16",
-    content:
-      "프로틴 쉐이크에 바나나 넣고 갈았더니 완전 맛있어서 3잔이나 마셨다",
-  },
-  {
-    id: "5",
-    tag: "식단",
-    date: "2025-05-17",
-    content: "오늘 먹은 브로콜리 샐러드가 너무 맛있어서 3번이나 리필했다",
-  },
-  {
-    id: "6",
-    tag: "식단",
-    date: "2025-05-17",
-    content:
-      "고구마 찐거랑 닭가슴살이랑 먹었더니 완전 꿀조합이다. 내일도 먹어야지",
-  },
-  {
-    id: "7",
-    tag: "운동",
-    date: "2025-05-15",
-    content:
-      "오늘 데드리프트 할 때 너무 힘줘서 방구 나와서 앞에 있던 사람이 깜짝 놀랐다",
-  },
-  {
-    id: "8",
-    tag: "운동",
-    date: "2025-05-15",
-    content:
-      "벤치프레스 하다가 바벨이 떨어질뻔해서 비명지르니까 옆 사람이 귀신인줄 알고 도망갔다",
-  },
-  {
-    id: "9",
-    tag: "운동",
-    date: "2025-05-15",
-    content:
-      "스쿼트 하다가 바지가 찢어져서 엉덩이가 보였는데 아무도 말 안해줬다",
-  },
-  {
-    id: "10",
-    tag: "운동",
-    date: "2025-05-16",
-    content:
-      "덤벨 들다가 놓쳐서 발가락 찍었더니 옆에서 운동하던 헬창이 '초보는 티나네~' 하고 비웃었다",
-  },
-  {
-    id: "11",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "런닝머신에서 뛰다가 핸드폰 떨어뜨려서 뒤로 날아가는거 잡으려다 나도 같이 날아갔다",
-  },
-  {
-    id: "12",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "13",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "14",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "15",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "16",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "17",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "18",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-  {
-    id: "19",
-    tag: "운동",
-    date: "2025-05-17",
-    content:
-      "플랭크 하다가 방구 뀌었는데 마스크 썼다고 내가 한 줄 아무도 모를거라 생각했다",
-  },
-];
+interface ScheduleData {
+  id: number;
+  tag: "식단" | "운동";
+  date: string;
+  content: string;
+  image?: string;
+}
 
-const UserScheduleScreen = () => {
-  const today = dayjs();
-  const [currentMonth, setCurrentMonth] = useState(today);
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [selectedTab, setSelectedTab] = useState("식단");
+export default function UserScheduleScreen() {
+  const [currentMonth, setCurrentMonth] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [selectedTab, setSelectedTab] = useState<"식단" | "운동">("식단");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [schedules, setSchedules] = useState<ScheduleData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const daysInMonth = Array.from(
-    { length: currentMonth.daysInMonth() },
-    (_, i) => currentMonth.date(i + 1)
-  );
+  const fetchSchedules = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const date = selectedDate.format("YYYY-MM-DD");
+      const data = await getRecords(date);
+      setSchedules(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "기록을 불러오는데 실패했습니다."
+      );
+      Alert.alert(
+        "오류",
+        err instanceof Error ? err.message : "기록을 불러오는데 실패했습니다."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const filteredData = sampleData.filter(
-    (item) =>
-      item.tag === selectedTab &&
-      item.date === selectedDate.format("YYYY-MM-DD")
-  );
+  useEffect(() => {
+    fetchSchedules();
+  }, [selectedDate]);
 
   const handleMonthChange = (monthIndex: number) => {
     const updated = currentMonth.month(monthIndex);
     setCurrentMonth(updated);
     setSelectedDate(updated.date(1));
   };
+
+  const handleAddSchedule = async (data: {
+    content: string;
+    tag: "식단" | "운동";
+    image?: string;
+  }) => {
+    try {
+      const date = selectedDate.format("YYYY-MM-DD");
+      await createRecord({
+        date,
+        content: data.content,
+        tag: data.tag,
+        image: data.image,
+      });
+      Alert.alert("성공", "기록이 추가되었습니다.");
+      setIsModalVisible(false);
+      fetchSchedules();
+    } catch (err) {
+      Alert.alert(
+        "오류",
+        err instanceof Error ? err.message : "기록 추가에 실패했습니다."
+      );
+    }
+  };
+
+  const filteredSchedules = schedules.filter(
+    (schedule) => schedule.tag === selectedTab
+  );
 
   return (
     <UseContainer>
@@ -182,7 +103,10 @@ const UserScheduleScreen = () => {
           </View>
           <View style={{ marginBottom: 20, marginTop: 10 }}>
             <DaySelector
-              daysInMonth={daysInMonth}
+              daysInMonth={Array.from(
+                { length: currentMonth.daysInMonth() },
+                (_, i) => currentMonth.date(i + 1)
+              )}
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
             />
@@ -191,22 +115,36 @@ const UserScheduleScreen = () => {
           <View>
             <ScheduleTab
               selectedTab={selectedTab}
-              setSelectedTab={setSelectedTab}
+              setSelectedTab={(tab) => setSelectedTab(tab as "식단" | "운동")}
             />
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {filteredData.map((item) => (
-              <View key={item.id} style={styles.card}>
-                <Text style={styles.cardText}>{item.content}</Text>
-              </View>
-            ))}
+            {loading ? (
+              <Text style={styles.loadingText}>로딩 중...</Text>
+            ) : error ? (
+              <Text style={styles.errorText}>{error}</Text>
+            ) : filteredSchedules.length === 0 ? (
+              <Text style={styles.emptyText}>등록된 기록이 없습니다.</Text>
+            ) : (
+              filteredSchedules.map((schedule) => (
+                <View key={schedule.id} style={styles.card}>
+                  <Text style={styles.cardText}>{schedule.content}</Text>
+                  {schedule.image && (
+                    <Image
+                      source={{ uri: schedule.image }}
+                      style={styles.image}
+                    />
+                  )}
+                </View>
+              ))
+            )}
           </ScrollView>
         </View>
         <View style={styles.fixedButtonWrapper}>
           <TouchableOpacity
-            onPress={() => setIsModalVisible(true)}
             style={styles.addButton}
+            onPress={() => setIsModalVisible(true)}
             activeOpacity={1}
           >
             <Text style={styles.addButtonText}>+</Text>
@@ -215,11 +153,12 @@ const UserScheduleScreen = () => {
         <AddScheduleModal
           isVisible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
+          onAdd={handleAddSchedule}
         />
       </View>
     </UseContainer>
   );
-};
+}
 
 const styles = StyleSheet.create({
   card: {
@@ -232,6 +171,12 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 16,
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    marginTop: 10,
+    borderRadius: 8,
   },
   fixedButtonWrapper: {
     width: "100%",
@@ -250,6 +195,22 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
   },
+  loadingText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "#666",
+  },
+  errorText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "red",
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "#666",
+  },
 });
-
-export default UserScheduleScreen;

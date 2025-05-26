@@ -68,3 +68,43 @@ export const updateUserProfile = async (profileData: {
 
   return json.data;
 };
+
+export const uploadProfileImage = async (file: Blob) => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) throw new Error("로그인이 필요합니다.");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    console.log("Starting image upload...");
+    const res = await fetch(`${BASE_URL}/profile/photo`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: formData,
+    });
+
+    console.log("Response status:", res.status);
+    const json = await res.json();
+    console.log("Response data:", json);
+
+    if (!res.ok) {
+      throw new Error(json.message || `서버 오류 (${res.status})`);
+    }
+
+    return json.data;
+  } catch (error) {
+    console.error("Upload error:", error);
+    if (error instanceof Error) {
+      if (error.message.includes("Network request failed")) {
+        throw new Error(
+          "서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요."
+        );
+      }
+      throw new Error(`이미지 업로드 실패: ${error.message}`);
+    }
+    throw error;
+  }
+};

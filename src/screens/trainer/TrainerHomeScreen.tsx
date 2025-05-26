@@ -1,56 +1,41 @@
 import { getScheduleToday, getTrainerProfile } from "@/libs/api/trainer";
+import TodayEventListBox from "@/src/components/common/TodayEventListBox";
 import UseContainer from "@/src/components/common/UseContainer";
-import TrainerEventList from "@/src/components/trainer/TrainerEventList";
 import TrainerProfile from "@/src/components/trainer/TrainerProfile";
 import dayjs from "dayjs";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-
-const sampleData = [
-  { id: "1", name: "김태희 회원님", time: "09:00 - 10:00", date: "2025-05-15" },
-  { id: "2", name: "이민호 회원님", time: "10:00 - 11:00", date: "2025-05-15" },
-  { id: "3", name: "정우성 회원님", time: "11:00 - 12:00", date: "2025-05-15" },
-  { id: "4", name: "손예진 회원님", time: "09:00 - 10:00", date: "2025-05-16" },
-  { id: "5", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-17" },
-  { id: "6", name: "전지현 회원님", time: "11:00 - 12:00", date: "2025-05-17" },
-  { id: "7", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-20" },
-  { id: "8", name: "전지현 회원님", time: "11:00 - 12:00", date: "2025-05-20" },
-  { id: "9", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-20" },
-  {
-    id: "10",
-    name: "전지현 회원님",
-    time: "11:00 - 12:00",
-    date: "2025-05-20",
-  },
-  { id: "11", name: "공유 회원님", time: "10:00 - 11:00", date: "2025-05-20" },
-  {
-    id: "12",
-    name: "전지현 회원님",
-    time: "11:00 - 12:00",
-    date: "2025-05-20",
-  },
-];
+import { StyleSheet, Text, View } from "react-native";
 
 type TrainerProfile = {
   name: string;
   photoUrl: string;
 };
 type ScheduleToday = {
-  name: string;
-  required: boolean;
-  description: string;
+  reservationId: number;
+  userName: string;
+  date: string;
+  time: string;
 };
 
 const TrainerHomeScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const [trainerName, setTrainerName] = useState<TrainerProfile>({
     name: "",
     photoUrl: "",
   });
-  const [scheduleToday, setScheduleToday] = useState<ScheduleToday>({
-    name: "",
-    required: true,
-    description: "",
-  });
+  const [scheduleToday, setScheduleToday] = useState<ScheduleToday[]>([]);
+  const fetchScheduleToday = async () => {
+    try {
+      const scheduleToday = await getScheduleToday();
+      console.log("받아온 스케줄 데이터:", scheduleToday);
+      setScheduleToday(scheduleToday);
+      console.log(scheduleToday);
+    } catch (error) {
+      console.error("트레이너 오늘 예약 목록 조회에 실패하였습니다.", error);
+    }
+  };
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -62,28 +47,11 @@ const TrainerHomeScreen = () => {
       }
     };
 
-    const fetchScheduleToday = async () => {
-      try {
-        const scheduleToday = await getScheduleToday();
-        setScheduleToday(scheduleToday);
-        console.log(scheduleToday);
-      } catch (error) {
-        console.error("트레이너 오늘 예약 목록 조회에 실패하였습니다.", error);
-      }
-    };
     fetchProfile();
     fetchScheduleToday();
-  }, []);
+  }, [params.refresh]);
 
-  const today = dayjs();
-
-  const filteredData = sampleData.filter(
-    (item) => item.date === today.format("YYYY-MM-DD")
-  );
-
-  const handleCancelSchedule = (id: string) => {
-    console.log(`일정 취소: ${id}`);
-  };
+  const today = dayjs().format("YYYY-MM-DD");
 
   return (
     <UseContainer>
@@ -96,21 +64,26 @@ const TrainerHomeScreen = () => {
           />
         </View>
         <View>
-          <Text style={styles.dateTitle}>
-            {today.format("M월 D일")} 오늘의 일정
-          </Text>
+          <Text style={styles.dateTitle}>{today} 오늘의 일정</Text>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {filteredData.map((item) => (
-            <TrainerEventList
-              key={item.id}
-              name={item.name}
-              time={item.time}
-              onCancel={() => handleCancelSchedule(item.id)}
-            />
-          ))}
-        </ScrollView>
+        <View style={styles.eventListWrapper}>
+          {scheduleToday?.length > 0 ? (
+            scheduleToday.map((v) => (
+              <TodayEventListBox
+                key={v.reservationId}
+                reservationId={v.reservationId}
+                date={today}
+                type="today"
+                name={v.userName}
+                time={v.time}
+                onDelete={fetchScheduleToday}
+              />
+            ))
+          ) : (
+            <Text>오늘 예약 없음</Text>
+          )}
+        </View>
       </View>
     </UseContainer>
   );
@@ -130,5 +103,12 @@ const styles = StyleSheet.create({
     marginTop: 40,
     color: "#bbb",
     fontSize: 15,
+  },
+  eventListWrapper: {
+    width: "100%",
+    backgroundColor: "#D9E6FD",
+    padding: 20,
+    borderRadius: 10,
+    marginTop: 20,
   },
 });

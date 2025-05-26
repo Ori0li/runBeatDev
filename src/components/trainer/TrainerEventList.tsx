@@ -4,11 +4,13 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 const TrainerEventList = ({
   name,
   time,
-  onCancel,
+  reservationId,
+  onDelete,
 }: {
   name: string;
   time: string;
-  onCancel: () => void;
+  reservationId: number;
+  onDelete: (reservationId: number) => void;
 }) => {
   return (
     <View style={styles.card}>
@@ -17,7 +19,10 @@ const TrainerEventList = ({
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.time}>{time}</Text>
       </View>
-      <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
+      <TouchableOpacity
+        style={styles.cancelBtn}
+        onPress={() => onDelete(reservationId)}
+      >
         <Text style={styles.cancelText}>일정 취소</Text>
       </TouchableOpacity>
     </View>

@@ -1,6 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
+  Alert,
   Image,
   Modal,
   StyleSheet,
@@ -10,12 +11,21 @@ import {
   View,
 } from "react-native";
 
-type AddScheduleModalProps = {
+interface AddScheduleModalProps {
   isVisible: boolean;
   onClose: () => void;
-};
+  onAdd: (data: {
+    content: string;
+    tag: "식단" | "운동";
+    image?: string;
+  }) => Promise<void>;
+}
 
-const AddScheduleModal = ({ isVisible, onClose }: AddScheduleModalProps) => {
+const AddScheduleModal = ({
+  isVisible,
+  onClose,
+  onAdd,
+}: AddScheduleModalProps) => {
   const [selectedTab, setSelectedTab] = useState<"식단" | "운동">("식단");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
@@ -30,6 +40,27 @@ const AddScheduleModal = ({ isVisible, onClose }: AddScheduleModalProps) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      Alert.alert("오류", "내용을 입력해주세요.");
+      return;
+    }
+
+    try {
+      await onAdd({
+        content: content.trim(),
+        tag: selectedTab,
+      });
+      setContent("");
+      setSelectedTab("식단");
+    } catch (err) {
+      Alert.alert(
+        "오류",
+        err instanceof Error ? err.message : "기록 추가에 실패했습니다."
+      );
     }
   };
 
@@ -104,9 +135,22 @@ const AddScheduleModal = ({ isVisible, onClose }: AddScheduleModalProps) => {
             )}
           </View>
 
-          <TouchableOpacity style={styles.modalAddButton} onPress={onClose}>
-            <Text style={styles.buttonText}>저장하기</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
+              onPress={onClose}
+            >
+              <Text style={styles.buttonText}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.saveButton]}
+              onPress={handleSubmit}
+            >
+              <Text style={[styles.buttonText, styles.saveButtonText]}>
+                저장
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -223,16 +267,28 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
   },
-  modalAddButton: {
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: "#F5F5F5",
+  },
+  saveButton: {
     backgroundColor: "#3C23D7",
-    padding: 15,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 20,
   },
   buttonText: {
-    color: "white",
+    textAlign: "center",
     fontSize: 16,
-    fontWeight: "600",
+    color: "#666",
+  },
+  saveButtonText: {
+    color: "white",
   },
 });
