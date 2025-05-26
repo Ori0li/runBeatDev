@@ -1,6 +1,5 @@
 import { createRecord, getRecords } from "@/libs/api/records";
-import DaySelector from "@/src/components/common/DaySelector";
-import MonthSelector from "@/src/components/common/MonthSelector";
+import RunBeatLogo from "@/src/components/common/RunBeatLogo";
 import ScheduleTab from "@/src/components/common/ScheduleTab";
 import UseContainer from "@/src/components/common/UseContainer";
 import AddScheduleModal from "@/src/components/user/AddScheduleModal";
@@ -15,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import CalendarStrip from "react-native-calendar-strip";
 
 interface ScheduleData {
   id: number;
@@ -88,14 +88,17 @@ export default function UserScheduleScreen() {
   };
 
   const filteredSchedules = schedules.filter(
-    (schedule) => schedule.tag === selectedTab
+    (schedule) =>
+      schedule.tag === selectedTab &&
+      schedule.date === selectedDate.format("YYYY-MM-DD")
   );
 
   return (
-    <UseContainer>
+    <View>
+      <RunBeatLogo />
       <View style={{ flex: 1, marginTop: 10 }}>
         <View style={{ flex: 1 }}>
-          <View>
+          {/* <View>
             <MonthSelector
               selectedMonth={currentMonth.month()}
               onMonthChange={handleMonthChange}
@@ -110,7 +113,39 @@ export default function UserScheduleScreen() {
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
             />
-          </View>
+          </View> */}
+          <CalendarStrip
+            style={{ height: 150, paddingVertical: 20 }}
+            calendarHeaderStyle={{
+              color: "white",
+              fontSize: 20,
+              marginBottom: 10,
+            }}
+            calendarColor={"#3C23D7"}
+            dateNumberStyle={{ color: "white", fontSize: 16 }}
+            highlightDateContainerStyle={{
+              backgroundColor: "#ffffff",
+              borderRadius: 9999,
+            }}
+            iconContainer={{ flex: 0.1 }}
+            highlightDateNumberStyle={{ color: "#3C23D7", fontSize: 16 }}
+            showDayName={false}
+            iconStyle={{ color: "#ffffff", fontSize: 16 }}
+            selectedDate={selectedDate.toDate()}
+            onDateSelected={(date) => setSelectedDate(dayjs(date))}
+            markedDates={filteredSchedules.map((schedule) => ({
+              date: schedule.date,
+              dots: [
+                {
+                  color: "#ffffff", // 기본 마크 색상 (항상 표시)
+                  selectedColor:
+                    selectedDate.format("YYYY-MM-DD") === schedule.date
+                      ? "#3C23D7" // 선택된 날짜 색상 변경
+                      : "#ffffff", // 선택되지 않은 날짜도 기본 색상 유지
+                },
+              ],
+            }))}
+          />
 
           <View>
             <ScheduleTab
@@ -156,7 +191,7 @@ export default function UserScheduleScreen() {
           onAdd={handleAddSchedule}
         />
       </View>
-    </UseContainer>
+    </View>
   );
 }
 

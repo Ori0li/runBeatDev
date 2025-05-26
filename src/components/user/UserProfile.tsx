@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3C23D7",
     padding: 20,
     borderRadius: 10,
-    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+    elevation: 3,
   },
   profileWrapper: {
     width: "100%",

@@ -237,10 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderColor: "#E6E6E6",
     borderWidth: 1,
-    shadowColor: "rgba(149, 157, 165, 0.2)",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 24,
+    elevation: 3,
   },
   timeButtonActive: {
     backgroundColor: "#3C23D7",

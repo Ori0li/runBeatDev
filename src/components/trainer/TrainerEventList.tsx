@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     padding: 20,
     borderRadius: 5,
-    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+    elevation: 3,
   },
   avatar: {
     width: 48,

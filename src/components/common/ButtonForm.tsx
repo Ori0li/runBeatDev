@@ -19,7 +19,7 @@ const style = StyleSheet.create({
     padding: 15,
     backgroundColor: "#3C23D7",
     borderRadius: 5,
-    boxShadow: "rgba(149, 157, 165, 0.3) 0px 6px 10px",
+    elevation: 3,
     marginTop: 20,
   },
   ButtonText: {
