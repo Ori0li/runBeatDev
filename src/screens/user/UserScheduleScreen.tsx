@@ -1,10 +1,11 @@
-import { createRecord, getRecords } from "@/libs/api/records";
+import { createRecord, deleteRecord, getRecords } from "@/libs/api/records";
+import CustomCalendar from "@/src/components/common/CustomCalendar";
 import RunBeatLogo from "@/src/components/common/RunBeatLogo";
 import ScheduleTab from "@/src/components/common/ScheduleTab";
-import UseContainer from "@/src/components/common/UseContainer";
 import AddScheduleModal from "@/src/components/user/AddScheduleModal";
+import { MaterialIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -14,7 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CalendarStrip from "react-native-calendar-strip";
 
 interface ScheduleData {
   id: number;
@@ -25,13 +25,19 @@ interface ScheduleData {
 }
 
 export default function UserScheduleScreen() {
-  const [currentMonth, setCurrentMonth] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTab, setSelectedTab] = useState<"식단" | "운동">("식단");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [schedules, setSchedules] = useState<ScheduleData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recordedDates, setRecordedDates] = useState<string[]>([]);
+  const calendarRef = useRef(null);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 오늘 날짜를 선택
+    setSelectedDate(dayjs());
+  }, []);
 
   const fetchSchedules = async () => {
     try {
@@ -53,15 +59,37 @@ export default function UserScheduleScreen() {
     }
   };
 
+  const fetchMonthSchedules = async () => {
+    const startDate = selectedDate.subtract(30, "day");
+    const endDate = selectedDate.add(30, "day");
+
+    const daysInRange = endDate.diff(startDate, "day") + 1;
+    const requests = Array.from({ length: daysInRange }, (_, i) => {
+      const date = startDate.add(i, "day").format("YYYY-MM-DD");
+      return getRecords(date)
+        .then((records) => ({
+          date,
+          hasData: records.some((r) => r.tag === selectedTab),
+        }))
+        .catch(() => ({
+          date,
+          hasData: false,
+        }));
+    });
+
+    const results = await Promise.all(requests);
+
+    const recorded = results
+      .filter((r) => r.hasData)
+      .map((r) => dayjs(r.date).format("YYYY-MM-DD"));
+
+    setRecordedDates(recorded);
+  };
+
   useEffect(() => {
     fetchSchedules();
-  }, [selectedDate]);
-
-  const handleMonthChange = (monthIndex: number) => {
-    const updated = currentMonth.month(monthIndex);
-    setCurrentMonth(updated);
-    setSelectedDate(updated.date(1));
-  };
+    fetchMonthSchedules();
+  }, [selectedDate, selectedTab]);
 
   const handleAddSchedule = async (data: {
     content: string;
@@ -87,6 +115,30 @@ export default function UserScheduleScreen() {
     }
   };
 
+  const markedDates = recordedDates.map((date) => ({
+    date,
+    dots: [
+      {
+        color: "#ffffff",
+        selectedColor:
+          selectedDate.format("YYYY-MM-DD") === date ? "#3C23D7" : "#ffffff",
+      },
+    ],
+  }));
+
+  const handleDeleteSchedule = async (id: number, tag: "식단" | "운동") => {
+    try {
+      await deleteRecord(id, tag);
+      Alert.alert("성공", "기록이 삭제되었습니다.");
+      fetchSchedules();
+    } catch (err) {
+      Alert.alert(
+        "오류",
+        err instanceof Error ? err.message : "기록 삭제에 실패했습니다."
+      );
+    }
+  };
+
   const filteredSchedules = schedules.filter(
     (schedule) =>
       schedule.tag === selectedTab &&
@@ -94,96 +146,70 @@ export default function UserScheduleScreen() {
   );
 
   return (
-    <View>
-      <RunBeatLogo />
+    <View style={{ flex: 1 }}>
+      <View style={{ padding: 20 }}>
+        <RunBeatLogo />
+      </View>
       <View style={{ flex: 1, marginTop: 10 }}>
         <View style={{ flex: 1 }}>
-          {/* <View>
-            <MonthSelector
-              selectedMonth={currentMonth.month()}
-              onMonthChange={handleMonthChange}
-            />
-          </View>
-          <View style={{ marginBottom: 20, marginTop: 10 }}>
-            <DaySelector
-              daysInMonth={Array.from(
-                { length: currentMonth.daysInMonth() },
-                (_, i) => currentMonth.date(i + 1)
-              )}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-          </View> */}
-          <CalendarStrip
-            style={{ height: 150, paddingVertical: 20 }}
-            calendarHeaderStyle={{
-              color: "white",
-              fontSize: 20,
-              marginBottom: 10,
-            }}
-            calendarColor={"#3C23D7"}
-            dateNumberStyle={{ color: "white", fontSize: 16 }}
-            highlightDateContainerStyle={{
-              backgroundColor: "#ffffff",
-              borderRadius: 9999,
-            }}
-            iconContainer={{ flex: 0.1 }}
-            highlightDateNumberStyle={{ color: "#3C23D7", fontSize: 16 }}
-            showDayName={false}
-            iconStyle={{ color: "#ffffff", fontSize: 16 }}
-            selectedDate={selectedDate.toDate()}
-            onDateSelected={(date) => setSelectedDate(dayjs(date))}
-            markedDates={filteredSchedules.map((schedule) => ({
-              date: schedule.date,
-              dots: [
-                {
-                  color: "#ffffff", // 기본 마크 색상 (항상 표시)
-                  selectedColor:
-                    selectedDate.format("YYYY-MM-DD") === schedule.date
-                      ? "#3C23D7" // 선택된 날짜 색상 변경
-                      : "#ffffff", // 선택되지 않은 날짜도 기본 색상 유지
-                },
-              ],
-            }))}
+          <CustomCalendar
+            ref={calendarRef}
+            selectedDate={selectedDate}
+            onDateSelected={setSelectedDate}
+            markedDates={markedDates}
           />
+          <View style={{ flex: 1, padding: 20 }}>
+            <View>
+              <ScheduleTab
+                selectedTab={selectedTab}
+                setSelectedTab={(tab) => setSelectedTab(tab as "식단" | "운동")}
+              />
+            </View>
 
-          <View>
-            <ScheduleTab
-              selectedTab={selectedTab}
-              setSelectedTab={(tab) => setSelectedTab(tab as "식단" | "운동")}
-            />
+            <ScrollView
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {loading ? (
+                <Text style={styles.loadingText}>로딩 중...</Text>
+              ) : error ? (
+                <Text style={styles.errorText}>{error}</Text>
+              ) : filteredSchedules.length === 0 ? (
+                <Text style={styles.emptyText}>등록된 기록이 없습니다.</Text>
+              ) : (
+                filteredSchedules.map((schedule) => (
+                  <View key={schedule.id} style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.cardText}>{schedule.content}</Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          handleDeleteSchedule(schedule.id, schedule.tag)
+                        }
+                        style={styles.deleteButton}
+                      >
+                        <MaterialIcons name="close" size={20} color="gray" />
+                      </TouchableOpacity>
+                    </View>
+                    {schedule.image && (
+                      <Image
+                        source={{ uri: schedule.image }}
+                        style={styles.image}
+                      />
+                    )}
+                  </View>
+                ))
+              )}
+            </ScrollView>
           </View>
-
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {loading ? (
-              <Text style={styles.loadingText}>로딩 중...</Text>
-            ) : error ? (
-              <Text style={styles.errorText}>{error}</Text>
-            ) : filteredSchedules.length === 0 ? (
-              <Text style={styles.emptyText}>등록된 기록이 없습니다.</Text>
-            ) : (
-              filteredSchedules.map((schedule) => (
-                <View key={schedule.id} style={styles.card}>
-                  <Text style={styles.cardText}>{schedule.content}</Text>
-                  {schedule.image && (
-                    <Image
-                      source={{ uri: schedule.image }}
-                      style={styles.image}
-                    />
-                  )}
-                </View>
-              ))
-            )}
-          </ScrollView>
-        </View>
-        <View style={styles.fixedButtonWrapper}>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setIsModalVisible(true)}
-            activeOpacity={1}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
+          <View style={styles.fixedButtonWrapper}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setIsModalVisible(true)}
+              activeOpacity={1}
+            >
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <AddScheduleModal
           isVisible={isModalVisible}
@@ -204,6 +230,11 @@ const styles = StyleSheet.create({
     borderColor: "#C0C0C0",
     borderRadius: 8,
   },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   cardText: {
     fontSize: 16,
   },
@@ -215,6 +246,7 @@ const styles = StyleSheet.create({
   },
   fixedButtonWrapper: {
     width: "100%",
+    padding: 20,
   },
   addButton: {
     width: "100%",
@@ -247,5 +279,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: "#666",
+  },
+  deleteButton: {
+    padding: 6,
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

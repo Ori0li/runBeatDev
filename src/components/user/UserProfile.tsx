@@ -47,7 +47,7 @@ const UserProfile = ({ name, height, weight, ptCount }: UserProfileProps) => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={handleEditProfile}>
           <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>프로필 수정</Text>
+            <Text style={styles.buttonText}>더보기</Text>
           </View>
         </TouchableOpacity>
       </View>

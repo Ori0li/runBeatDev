@@ -1,25 +1,19 @@
 import { deleteSchedule } from "@/libs/api/schedule";
 import { getTrainerReservations } from "@/libs/api/trainer";
-import DaySelector from "@/src/components/common/DaySelector";
-import MonthSelector from "@/src/components/common/MonthSelector";
+import CustomCalendar from "@/src/components/common/CustomCalendar";
 import UseContainer from "@/src/components/common/UseContainer";
 import TrainerEventList from "@/src/components/trainer/TrainerEventList";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 
 const TrainerReservationScreen = () => {
   const today = dayjs();
-  const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState(today);
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const daysInMonth = Array.from(
-    { length: currentMonth.daysInMonth() },
-    (_, i) => currentMonth.date(i + 1)
-  );
+  const calendarRef = useRef(null);
 
   const fetchReservations = async (date: string) => {
     setLoading(true);
@@ -39,12 +33,6 @@ const TrainerReservationScreen = () => {
     fetchReservations(selectedDate.format("YYYY-MM-DD"));
   }, [selectedDate]);
 
-  const handleMonthChange = (monthIndex: number) => {
-    const updated = currentMonth.month(monthIndex);
-    setCurrentMonth(updated);
-    setSelectedDate(updated.date(1));
-  };
-
   const handleDelete = async (reservationId: number) => {
     try {
       await deleteSchedule(reservationId);
@@ -58,14 +46,13 @@ const TrainerReservationScreen = () => {
   return (
     <UseContainer>
       <View>
-        <MonthSelector
-          selectedMonth={currentMonth.month()}
-          onMonthChange={handleMonthChange}
-        />
-        <DaySelector
-          daysInMonth={daysInMonth}
+        <CustomCalendar
+          ref={calendarRef}
           selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
+          onDateSelected={setSelectedDate}
+          markedDates={reservations.map((reservation) => ({
+            date: reservation.date,
+          }))}
         />
       </View>
       {loading ? (

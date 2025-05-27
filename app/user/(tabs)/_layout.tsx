@@ -16,6 +16,8 @@ export default function TabLayout() {
           },
           default: {
             backgroundColor: "#3c23d7",
+            paddingTop: 9,
+            height: 60,
           },
         }),
         tabBarActiveTintColor: "#ffffff",
@@ -26,7 +28,7 @@ export default function TabLayout() {
         name="index"
         options={{
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={30} name="house.fill" color={color} />
           ),
           tabBarLabel: "",
         }}
@@ -35,7 +37,7 @@ export default function TabLayout() {
         name="schedule"
         options={{
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="note.text" color={color} />
+            <IconSymbol size={30} name="calendar.badge.plus" color={color} />
           ),
           tabBarLabel: "",
         }}
@@ -44,7 +46,7 @@ export default function TabLayout() {
         name="add"
         options={{
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="plus.app" color={color} />
+            <IconSymbol size={30} name="figure.run" color={color} />
           ),
           tabBarLabel: "",
         }}
@@ -53,7 +55,7 @@ export default function TabLayout() {
         name="chat"
         options={{
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="message.fill" color={color} />
+            <IconSymbol size={30} name="message.fill" color={color} />
           ),
           tabBarLabel: "",
         }}

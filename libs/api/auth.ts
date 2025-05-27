@@ -1,5 +1,9 @@
 import { useAuthStore } from "@/src/stores/useAuthStore";
-import { saveRefreshToken } from "@/src/utils/secureToken";
+import {
+  deleteRefreshToken,
+  getRefreshToken,
+  saveRefreshToken,
+} from "@/src/utils/secureToken";
 
 const BASE_URL = "http://192.168.4.19:3050";
 
@@ -23,6 +27,8 @@ export const authAccount = async (
   const { accessToken, refreshToken, role: serverRole } = json.data;
   useAuthStore.getState().setAuth(accessToken, serverRole);
   await saveRefreshToken(refreshToken);
+
+  return json.data;
 };
 
 export const updateUserPassword = async (
@@ -72,4 +78,27 @@ export const deleteUser = async () => {
   }
 
   return json.data;
+};
+
+export const refreshToken = async () => {
+  const refreshToken = await getRefreshToken();
+  if (!refreshToken) throw new Error("리프레시 토큰 없음");
+
+  const res = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || "자동 로그인 실패");
+  }
+
+  return json.data;
+};
+
+export const logout = async () => {
+  useAuthStore.getState().clearAuth();
+  await deleteRefreshToken();
 };

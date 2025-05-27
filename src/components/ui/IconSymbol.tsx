@@ -14,6 +14,8 @@ const MAPPING = {
   "note.text": "schedule",
   "plus.app": "add-circle-outline",
   "message.fill": "message",
+  "calendar.badge.plus": "calendar-month",
+  "figure.run": "directions-run",
 } as IconMapping;
 
 export function IconSymbol({

@@ -1,4 +1,4 @@
-import { deleteUser } from "@/libs/api/auth";
+import { deleteUser, logout } from "@/libs/api/auth";
 import { updateUserProfile, uploadProfileImage } from "@/libs/api/user";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -182,8 +182,14 @@ const EditProfile = ({
       },
       {
         text: "확인",
-        onPress: () => {
-          console.log("로그아웃");
+        onPress: async () => {
+          try {
+            await logout();
+            router.replace("/login/(tabs)");
+          } catch (error) {
+            console.error("로그아웃 오류:", error);
+            Alert.alert("오류", "로그아웃 중 오류가 발생했습니다.");
+          }
         },
       },
     ]);

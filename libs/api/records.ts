@@ -89,3 +89,25 @@ export const createRecord = async (recordData: {
 
   return json.data;
 };
+
+export const deleteRecord = async (recordId: number, tag: "식단" | "운동") => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) throw new Error("로그인이 필요합니다.");
+
+  const endpoint = tag === "식단" ? "/records/meal" : "/records/exercise";
+
+  const res = await fetch(`${BASE_URL}${endpoint}/${recordId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || "기록 삭제에 실패했습니다.");
+  }
+
+  return json.data;
+};

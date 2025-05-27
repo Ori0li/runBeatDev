@@ -37,11 +37,8 @@ const UserHomeScreen = () => {
   const fetchSchedule = async () => {
     try {
       const scheduleData = await getSchedule();
-      console.log("받아온 스케줄 데이터:", scheduleData);
       setTodaySchedule(scheduleData.today);
       setUpcomingSchedule(scheduleData.upcoming);
-      console.log("오늘의 스케줄:", todaySchedule);
-      console.log("다가오는 스케줄:", upcomingSchedule);
     } catch (error) {
       console.error("스케줄 정보를 가져오는데 실패했습니다.", error);
     }

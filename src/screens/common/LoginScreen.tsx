@@ -3,6 +3,7 @@ import { getUserMainProfile } from "@/libs/api/user";
 import ButtonForm from "@/src/components/common/ButtonForm";
 import InputForm from "@/src/components/common/InputForm";
 import UseContainer from "@/src/components/common/UseContainer";
+import { saveRefreshToken } from "@/src/utils/secureToken";
 import Checkbox from "expo-checkbox";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
@@ -17,10 +18,15 @@ const LoginScreen = () => {
 
   const loginHandler = async () => {
     try {
-      await authAccount(IdValue, passwordValue, role as "trainer" | "user");
+      const data = await authAccount(
+        IdValue,
+        passwordValue,
+        role as "trainer" | "user"
+      );
       Alert.alert("로그인 성공");
 
-      if (isChecked) {
+      if (isChecked && data.refreshToken) {
+        await saveRefreshToken(data.refreshToken);
         console.log("자동로그인 체크됨 (refreshToken은 SecureStore에 저장됨)");
       }
 
@@ -45,28 +51,32 @@ const LoginScreen = () => {
   return (
     <UseContainer>
       <View style={styles.section}>
-        <InputForm
-          value={IdValue}
-          setValue={setIdValue}
-          title="아이디"
-          placeholder="아이디를 입력하세요"
-        />
-        <InputForm
-          value={passwordValue}
-          setValue={setPasswordValue}
-          title="비밀번호"
-          placeholder="비밀번호를 입력하세요"
-        />
-        <View style={styles.autoLogin}>
-          <Checkbox
-            value={isChecked}
-            onValueChange={setChecked}
-            color={isChecked ? "#3C23D7" : undefined}
-            style={styles.checkbox}
+        <View>
+          <InputForm
+            value={IdValue}
+            setValue={setIdValue}
+            title="아이디"
+            placeholder="아이디를 입력하세요"
           />
-          <Text style={styles.label}>자동로그인</Text>
+          <InputForm
+            value={passwordValue}
+            setValue={setPasswordValue}
+            title="비밀번호"
+            placeholder="비밀번호를 입력하세요"
+          />
+          <View style={styles.autoLogin}>
+            <Checkbox
+              value={isChecked}
+              onValueChange={setChecked}
+              color={isChecked ? "#3C23D7" : undefined}
+              style={styles.checkbox}
+            />
+            <Text style={styles.label}>자동로그인</Text>
+          </View>
         </View>
-        <ButtonForm name="로그인" onPress={loginHandler} />
+        <View style={{ marginBottom: 20 }}>
+          <ButtonForm name="로그인" onPress={loginHandler} />
+        </View>
       </View>
     </UseContainer>
   );
@@ -74,7 +84,11 @@ const LoginScreen = () => {
 
 const styles = StyleSheet.create({
   section: {
+    flex: 1,
     paddingTop: 50,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   autoLogin: {
     flexDirection: "row",
